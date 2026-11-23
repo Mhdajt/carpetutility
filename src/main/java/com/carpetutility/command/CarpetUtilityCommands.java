@@ -15,6 +15,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.command.permission.PermissionLevel;
+import net.minecraft.command.permission.LeveledPermissionPredicate;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.Vec3d;
@@ -34,7 +36,7 @@ public class CarpetUtilityCommands {
     public static void register() {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             dispatcher.register(CommandManager.literal("carpetutility")
-                .requires(source -> source.hasPermissionLevel(CarpetUtilityConfig.permissionLevel))
+                .requires(source -> source.getPermissions().hasPermission(LeveledPermissionPredicate.fromLevel(PermissionLevel.fromLevel(CarpetUtilityConfig.permissionLevel))))
                 // /carpetutility status
                 .then(CommandManager.literal("status")
                     .executes(CarpetUtilityCommands::executeStatus)
@@ -69,7 +71,7 @@ public class CarpetUtilityCommands {
         ServerCommandSource source = ctx.getSource();
         MinecraftServer server = source.getServer();
 
-        ServerPlayerEntity bot = server.getPlayerList().getPlayer(botName);
+        ServerPlayerEntity bot = server.getPlayerManager().getPlayer(botName);
         if (bot == null) {
             source.sendFeedback(() -> Text.literal("Bot '" + botName + "' not found! (Spawn it first with /player " + botName + " spawn)")
                     .formatted(Formatting.RED), false);
@@ -93,7 +95,7 @@ public class CarpetUtilityCommands {
         ServerCommandSource source = ctx.getSource();
         MinecraftServer server = source.getServer();
 
-        ServerPlayerEntity bot = server.getPlayerList().getPlayer(botName);
+        ServerPlayerEntity bot = server.getPlayerManager().getPlayer(botName);
         if (bot == null) {
             source.sendFeedback(() -> Text.literal("Bot '" + botName + "' not found! (Spawn it first with /player " + botName + " spawn)")
                     .formatted(Formatting.RED), false);
@@ -146,7 +148,7 @@ public class CarpetUtilityCommands {
 
     public static CompletableFuture<Suggestions> suggestBots(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) {
         MinecraftServer server = context.getSource().getServer();
-        for (ServerPlayerEntity player : server.getPlayerList().getPlayers()) {
+        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
             builder.suggest(player.getName().getString());
         }
         return builder.buildFuture();
