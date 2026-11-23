@@ -55,13 +55,13 @@ public class CobwebScoreboardTracker {
         Scoreboard scoreboard = server.getScoreboard();
         ScoreboardObjective objective = ensureObjective(scoreboard);
 
-        for (ServerPlayerEntity player : server.getPlayerList().getPlayers()) {
+        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
             boolean standingOnCobweb = isPlayerOnCobweb(player);
 
             ScoreAccess scoreAccess = scoreboard.getOrCreateScore(player, objective);
             int newScore = standingOnCobweb ? 1 : 0;
-            if (scoreAccess.get() != newScore) {
-                scoreAccess.set(newScore);
+            if (scoreAccess.getScore() != newScore) {
+                scoreAccess.setScore(newScore);
             }
         }
     }
@@ -74,12 +74,12 @@ public class CobwebScoreboardTracker {
         BlockPos underPos = feetPos.down();
 
         // Check block at feet
-        if (player.getServerWorld().getBlockState(feetPos).isOf(Blocks.COBWEB)) {
+        if (player.getEntityWorld().getBlockState(feetPos).isOf(Blocks.COBWEB)) {
             return true;
         }
 
         // Check block directly under feet
-        if (player.getServerWorld().getBlockState(underPos).isOf(Blocks.COBWEB)) {
+        if (player.getEntityWorld().getBlockState(underPos).isOf(Blocks.COBWEB)) {
             return true;
         }
 
