@@ -36,9 +36,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main'
         with:
-          tag_name: v1.0.0
-          name: CarpetUtility v1.0.0 (Fabric 1.21.11)
-          body: "Official release of CarpetUtility Fabric mod for Minecraft 1.21.11 with Carpet fake player pathfinding, bridging, and cobweb scoreboard."
+          tag_name: v1.1.0
+          name: CarpetUtility v1.1.0 (Fabric 1.21.11)
+          body: "CarpetUtility Fabric mod v1.1.0 for Minecraft 1.21.11 with Carpet fake player pathfinding, bridging, wall mining, pillaring, scoreboard tracking, and /namegen command."
           files: build/libs/carpetutility-*.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

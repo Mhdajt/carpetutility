@@ -1,89 +1,48 @@
-# CarpetUtility
+# CarpetUtility 1.1.0
 
-A dedicated Fabric mod for **Minecraft 1.21.11** that extends [Fabric Carpet](https://github.com/gnembon/fabric-carpet) with advanced fake player navigation, automated bridging over holes, obstacle avoidance, and continuous cobweb scoreboard tracking.
+Enhanced version of CarpetUtility with:
 
-Works seamlessly on dedicated servers and clients, with native support for Carpet fake players (`EntityPlayerMPFake`) and optional support for Carpet+ / CarpetMod-Plus.
+## New features
 
----
+### `/namegen`
+- Generates a random name suitable for a Carpet fake player / bot
+- **Only usable by players named `Fins` or `SR888V`**
+- `/namegen` → prints a name + the spawn command
+- `/namegen spawn` → generates a name and immediately runs `/player <name> spawn`
 
-## Features
+### Improved pathfinding on `/carpetutility <bot> walkto ...`
+- **Mine through walls**: if the bot cannot go around a solid obstacle (or has steered too many times), it will switch to a pickaxe (if available) and dig the blocking blocks
+- **Pillar up**: if the target player/position is significantly above the bot and the bot is close horizontally, it will place blocks under itself and jump to climb up
 
-### 1. In-Game Commands (Carpet Style)
-- `/carpetutility <botname> walkto <player>` — Orders a Carpet fake player to pathfind toward a target player in real time.
-- `/carpetutility <botname> walkto <x> <y> <z>` — Orders the bot to pathfind to specific coordinates.
-- `/carpetutility stop <botname>` — Halts bot walking and resets its Carpet action pack.
-- `/carpetutility status` — Displays real-time status of all active walking bots (target, distance, bridging state).
+### Original features kept
+- `/carpetutility <bot> walkto <player|pos>`
+- `/carpetutility stop <bot>`
+- `/carpetutility status`
+- Bridging over holes
+- Cobweb scoreboard tracker (`on_cobweb` objective)
 
-### 2. Autonomous Bot Walking & Bridging
-- **Direct Carpet ActionPack Integration**: Controls movement, look angle, sprinting, jumping, and sneaking via Carpet's native `EntityPlayerActionPack` API with command-level fallbacks.
-- **Hole Bridging**: When the bot approaches a void or hole, it automatically crouches, selects a building block from its inventory, and places it beneath its next step.
-- **Wall & Obstacle Avoidance**: Detects walls ahead; automatically jumps single-block elevations or intelligently steers around taller walls rather than running into them.
-- **Configurable Bridging Blocks**: Supports standard building blocks (dirt, cobblestone, stone, planks, deepslate, netherrack, etc.).
+## Building
 
-### 3. Cobweb Scoreboard Tracker
-- Automatically creates and maintains the `on_cobweb` scoreboard objective on the sidebar.
-- Continuously checks every player (real players and Carpet bots) each tick:
-  - Score is set to **`1`** if standing inside or on a cobweb (`minecraft:cobweb`).
-  - Score is set to **`0`** otherwise.
+This is the source for a Fabric mod targeting Minecraft 1.21.11 + Carpet.
 
----
+1. Create a standard Fabric Loom project for 1.21.11
+2. Put these sources under `src/main/java`
+3. Put `src/main/resources` content (fabric.mod.json, mixins, assets)
+4. Add dependency on Carpet (`carpet` mod)
+5. `./gradlew build`
 
-## Installation
+The original JAR used intermediary mappings. These sources use readable Yarn-style names so they are easy to edit. Adjust method names if your mappings differ slightly for 1.21.11.
 
-1. Install **Fabric Loader** (>= 0.18.2) for **Minecraft 1.21.11**.
-2. Install **Fabric Carpet** (1.4.194+ for 1.21.11) into your `mods/` directory.
-3. (Optional) Install **Carpet+** / **CarpetMod-Plus** for extra Carpet features.
-4. Place `carpetutility-1.0.0.jar` into your `mods/` folder.
-5. Start your Minecraft client or dedicated server.
+## Commands summary
 
----
+```
+/namegen                  - generate a bot name (Fins / SR888V only)
+/namegen spawn            - generate + spawn the bot
 
-## Quick Start & Usage
-
-```mcfunction
-# 1. Spawn a Carpet fake player
-/player Bot1 spawn
-
-# 2. Give the bot some building blocks for bridging (e.g. cobblestone or dirt)
-/give Bot1 cobblestone 64
-
-# 3. Order the bot to follow you
-/carpetutility Bot1 walkto @s
-
-# 4. Or order the bot to walk to specific coordinates
-/carpetutility Bot1 walkto 150 70 -200
-
-# 5. Check active bot status
 /carpetutility status
-
-# 6. Stop the bot anytime
-/carpetutility stop Bot1
+/carpetutility stop <bot>
+/carpetutility <bot> walkto <player>
+/carpetutility <bot> walkto <x> <y> <z>
 ```
 
----
-
-## Building from Source
-
-To compile the JAR file locally using the included Gradle wrapper:
-
-```bash
-# Clone the repository
-git clone https://github.com/Mhdajt/carpetutility.git
-cd carpetutility
-
-# Build with Gradle (requires Java 21)
-./gradlew build
-```
-
-The compiled mod JAR will be generated at:
-```
-build/libs/carpetutility-1.0.0.jar
-```
-
-Alternatively, whenever changes are pushed to `main`, GitHub Actions automatically builds the mod JAR and attaches it as an artifact and GitHub Release.
-
----
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).
+Give the bot blocks (for bridging & pillaring) and a pickaxe (for mining walls).

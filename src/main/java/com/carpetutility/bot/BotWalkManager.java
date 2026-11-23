@@ -8,21 +8,16 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Manages all active Carpet bot navigation tasks and coordinates tick updates.
- */
 public class BotWalkManager {
     private static final BotWalkManager INSTANCE = new BotWalkManager();
+    private final Map<String, BotBrain> activeWalkers = new ConcurrentHashMap<>();
 
     public static BotWalkManager getInstance() {
         return INSTANCE;
     }
-
-    private final Map<String, BotBrain> activeWalkers = new ConcurrentHashMap<>();
 
     private BotWalkManager() {}
 
@@ -50,29 +45,22 @@ public class BotWalkManager {
     }
 
     public void tick(MinecraftServer server) {
-        if (activeWalkers.isEmpty()) {
-            return;
-        }
+        if (activeWalkers.isEmpty()) return;
 
-        Iterator<Map.Entry<String, BotBrain>> iterator = activeWalkers.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<String, BotBrain> entry = iterator.next();
+        for (Map.Entry<String, BotBrain> entry : activeWalkers.entrySet()) {
             BotBrain brain = entry.getValue();
-
             ServerPlayerEntity bot = server.getPlayerManager().getPlayer(brain.getBotName());
             if (bot == null || !bot.isAlive()) {
                 brain.stop();
                 activeWalkers.remove(entry.getKey(), brain);
                 continue;
             }
-
             brain.tick(bot, server);
-
             if (brain.isArrived()) {
                 brain.stop();
                 if (brain.getSource() != null) {
                     brain.getSource().sendFeedback(() -> Text.literal("Bot '" + brain.getBotName() + "' arrived at destination!")
-                            .formatted(Formatting.GREEN), false);
+                        .formatted(Formatting.GREEN), false);
                 }
                 activeWalkers.remove(entry.getKey(), brain);
             }
