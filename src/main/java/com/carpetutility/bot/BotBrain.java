@@ -3,7 +3,7 @@ package com.carpetutility.bot;
 import carpet.helpers.EntityPlayerActionPack;
 import carpet.helpers.EntityPlayerActionPack.Action;
 import carpet.helpers.EntityPlayerActionPack.ActionType;
-import carpet.patches.EntityPlayerMPFake;
+import carpet.fakes.ServerPlayerInterface;
 import com.carpetutility.CarpetUtilityConfig;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
@@ -97,9 +97,9 @@ public class BotBrain {
      */
     private Vec3d resolveTargetPos(MinecraftServer server) {
         if (mode == WalkMode.PLAYER) {
-            ServerPlayerEntity targetPlayer = server.getPlayerList().getPlayer(targetPlayerUuid);
+            ServerPlayerEntity targetPlayer = server.getPlayerManager().getPlayer(targetPlayerUuid);
             if (targetPlayer != null && targetPlayer.isAlive()) {
-                return targetPlayer.getPos();
+                return new Vec3d(targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ());
             }
             return null;
         }
@@ -110,7 +110,7 @@ public class BotBrain {
      * Obtains the Carpet ActionPack for the bot.
      */
     private EntityPlayerActionPack getActionPack(ServerPlayerEntity bot) {
-        if (bot instanceof EntityPlayerMPFake fake) {
+        if (bot instanceof ServerPlayerInterface fake) {
             return fake.getActionPack();
         }
         return null;
@@ -127,8 +127,8 @@ public class BotBrain {
             return;
         }
 
-        ServerWorld world = bot.getServerWorld();
-        Vec3d botPos = bot.getPos();
+        ServerWorld world = bot.getEntityWorld();
+        Vec3d botPos = new Vec3d(bot.getX(), bot.getY(), bot.getZ());
 
         double dx = targetPos.x - botPos.x;
         double dz = targetPos.z - botPos.z;
@@ -199,7 +199,7 @@ public class BotBrain {
                 if (actionPack != null) {
                     actionPack.start(ActionType.JUMP, Action.once());
                 } else {
-                    executeCarpetCommand(bot.getServer(), String.format("player %s jump once", botName));
+                    executeCarpetCommand(server, String.format("player %s jump once", botName));
                 }
             } else {
                 // Wall is 2+ blocks tall: steer around it!
@@ -250,7 +250,7 @@ public class BotBrain {
 
         // Switch to slot if in hotbar
         if (bridgeSlot < 9) {
-            bot.getInventory().selectedSlot = bridgeSlot;
+            bot.getInventory().setSelectedSlot(bridgeSlot);
             if (actionPack != null) {
                 actionPack.setSlot(bridgeSlot + 1);
             } else {
@@ -323,7 +323,7 @@ public class BotBrain {
 
     private void executeCarpetCommand(MinecraftServer server, String command) {
         if (server != null) {
-            server.getCommandManager().executeWithPrefix(server.getCommandSource(), command);
+            server.getCommandManager().parseAndExecute(server.getCommandSource(), command);
         }
     }
 }
