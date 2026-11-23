@@ -1,0 +1,44 @@
+name: Build and Release CarpetUtility
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: current
+
+      - name: Build mod JAR
+        run: gradle build --no-daemon --stacktrace
+
+      - name: Upload mod jar artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: carpetutility-fabric-1.21.11
+          path: build/libs/*.jar
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main'
+        with:
+          tag_name: v1.0.0
+          name: CarpetUtility v1.0.0 (Fabric 1.21.11)
+          body: "Official release of CarpetUtility Fabric mod for Minecraft 1.21.11 with Carpet fake player pathfinding, bridging, and cobweb scoreboard."
+          files: build/libs/carpetutility-*.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

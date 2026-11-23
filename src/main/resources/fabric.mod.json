@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "carpetutility",
+  "version": "${version}",
+  "name": "CarpetUtility",
+  "description": "Fabric mod for Carpet fake player pathfinding, bridging, and cobweb scoreboard tracking.",
+  "authors": [
+    "Mhdajt"
+  ],
+  "contact": {
+    "sources": "https://github.com/Mhdajt/carpetutility"
+  },
+  "license": "MIT",
+  "icon": "assets/carpetutility/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.carpetutility.CarpetUtilityMod"
+    ]
+  },
+  "mixins": [
+    "carpetutility.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.18.2",
+    "minecraft": "1.21.11",
+    "java": ">=21",
+    "carpet": ">=1.4.194"
+  },
+  "suggests": {
+    "carpet-plus": "*"
+  }
+}
