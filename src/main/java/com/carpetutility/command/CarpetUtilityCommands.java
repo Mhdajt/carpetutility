@@ -36,7 +36,15 @@ public class CarpetUtilityCommands {
     public static void register() {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             dispatcher.register(CommandManager.literal("carpetutility")
-                .requires(source -> source.getPermissions().hasPermission(LeveledPermissionPredicate.fromLevel(PermissionLevel.fromLevel(CarpetUtilityConfig.permissionLevel))))
+                .requires(source -> {
+                if (CarpetUtilityConfig.permissionLevel <= 0) return true;
+                return source.getPermissions().hasPermission(
+                    CarpetUtilityConfig.permissionLevel >= 4 ? net.minecraft.command.DefaultPermissions.OWNERS :
+                    CarpetUtilityConfig.permissionLevel >= 3 ? net.minecraft.command.DefaultPermissions.ADMINS :
+                    CarpetUtilityConfig.permissionLevel >= 2 ? net.minecraft.command.DefaultPermissions.GAMEMASTERS :
+                    net.minecraft.command.DefaultPermissions.MODERATORS
+                );
+            })
                 // /carpetutility status
                 .then(CommandManager.literal("status")
                     .executes(CarpetUtilityCommands::executeStatus)
