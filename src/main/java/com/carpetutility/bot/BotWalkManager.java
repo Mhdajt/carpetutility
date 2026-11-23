@@ -59,10 +59,10 @@ public class BotWalkManager {
             Map.Entry<String, BotBrain> entry = iterator.next();
             BotBrain brain = entry.getValue();
 
-            ServerPlayerEntity bot = server.getPlayerList().getPlayer(brain.getBotName());
+            ServerPlayerEntity bot = server.getPlayerManager().getPlayer(brain.getBotName());
             if (bot == null || !bot.isAlive()) {
                 brain.stop();
-                iterator.remove();
+                activeWalkers.remove(entry.getKey(), brain);
                 continue;
             }
 
@@ -74,7 +74,7 @@ public class BotWalkManager {
                     brain.getSource().sendFeedback(() -> Text.literal("Bot '" + brain.getBotName() + "' arrived at destination!")
                             .formatted(Formatting.GREEN), false);
                 }
-                iterator.remove();
+                activeWalkers.remove(entry.getKey(), brain);
             }
         }
     }
